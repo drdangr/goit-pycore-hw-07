@@ -153,8 +153,12 @@ class Record:
         return None
 
     def __str__(self) -> str:
-        phones_str = "; ".join(p.value for p in self.phones)
-        return f"Contact name: {self.name.value}, phones: {phones_str}"
+        parts = [f"Contact name: {self.name.value}"]
+        if self.phones:
+            parts.append(f"phones: {'; '.join(p.value for p in self.phones)}")
+        if self.birthday:
+            parts.append(f"birthday: {self.birthday}")
+        return ", ".join(parts)
     
     #  операції з днем народження
     def add_birthday(self, date_str: str) -> None:
@@ -202,6 +206,15 @@ class AddressBook(UserDict):
             del self.data[name]
             return True
         return False
+    
+    def get_birthday_by_name(self, name: str) -> str | None:
+        """
+        Повертає дату народження контакту за іменем або None, якщо не знайдено.
+        """
+        record = self.find(name)
+        if record and record.birthday:
+            return record.get_birthday_str()
+        return None
     
     def get_upcoming_birthdays(self, base_date: date | None = None) -> list[str]:
         """
@@ -297,9 +310,17 @@ if __name__ == "__main__":
     jane_record.add_phone("9876543210")
     book.add_record(jane_record)
     jane = book.find("Jane")
-
-    # Додамо день ії народження
+    
+    # Додамо день ії народження 
     jane.add_birthday("17.09.1992") # Jane
+    #-------------------------------------------------------------
+
+    # Виведення всіх записів після додавання Jane назад - нема в ТЗ, але для перевірки
+    print("\nAfter adding Jane back, and adding they Birthdays:")
+    for name, record in book.data.items():
+        print(record)
+    
+
 
     # Припустимо, сьогодні 10 вересня 2023 року
     test_date = date(2023, 9, 10)
