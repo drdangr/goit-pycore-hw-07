@@ -232,7 +232,7 @@ class AddressBook(UserDict):
     def add_record(self, record: Record) -> None:
         """
         Додає запис у книгу. Ключ — точне ім'я (як у record.name.value).
-        Якщо ім'я вже існує — перезаписує (можна змінити поведінку за потреби).
+        Якщо ім'я вже існує — перезаписує.
         """
         self.data[record.name.value] = record
 
