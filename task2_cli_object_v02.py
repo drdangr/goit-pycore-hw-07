@@ -14,6 +14,7 @@ def input_error(func: Callable[..., str]) -> Callable[..., str]:
     Обгортає хендлер команди та перехоплює типові помилки введення користувача,
     повертаючи дружні повідомлення замість падіння програми.
     """
+
     @functools.wraps(func)
     def inner(*args, **kwargs) -> str:
         try:
@@ -25,8 +26,9 @@ def input_error(func: Callable[..., str]) -> Callable[..., str]:
         except IndexError:
             return "Not enough arguments for this command."
         except ValueError as e:
-            msg = (str(e).strip() or "Invalid value.")
+            msg = str(e).strip() or "Invalid value."
             return msg
+
     return inner
 
 
@@ -49,6 +51,7 @@ def parse_input(user_input: str) -> Tuple[str, List[str]]:
 # =====================
 class Field:
     """Базовий клас для полів запису."""
+
     def __init__(self, value):
         self.value = value
 
@@ -61,6 +64,7 @@ class Field:
 
 class Name(Field):
     """Обов'язкове поле — ім'я контакту."""
+
     def __init__(self, value: str):
         cleaned = value.strip()
         if not cleaned:
@@ -72,6 +76,7 @@ class Phone(Field):
     """
     Телефон з валідацією: РІВНО 10 цифр (без «очищення» сторонніх символів).
     """
+
     def __init__(self, value: str):
         super().__init__(self._validate(value))
 
@@ -95,6 +100,7 @@ class Birthday(Field):
     """
     День народження з валідацією формату DD.MM.YYYY та збереженням як date.
     """
+
     def __init__(self, value: str | date):
         dt = value if isinstance(value, date) else self._parse(value)
         super().__init__(dt)
@@ -132,6 +138,7 @@ class Record:
     - phones: List[Phone]
     - birthday: Birthday | None
     """
+
     def __init__(self, name: str):
         self.name = Name(name)
         self.phones: List[Phone] = []
@@ -149,7 +156,9 @@ class Record:
         return False
 
     def edit_phone(self, old_value: str, new_value: str) -> bool:
-        target = self.find_phone(old_value)  # якщо формат old_value поганий — ValueError
+        target = self.find_phone(
+            old_value
+        )  # якщо формат old_value поганий — ValueError
         if not target:
             return False
         target.value = new_value  # валідація нового значення тут же
@@ -188,6 +197,7 @@ class AddressBook(UserDict):
     """
     Колекція записів (Record), ключ — ім'я (рядок). Зберігаємо у self.data: {name: Record}.
     """
+
     def add_record(self, record: Record) -> None:
         self.data[record.name.value] = record
 
@@ -214,9 +224,17 @@ class AddressBook(UserDict):
         у дужках — фактичний день тижня для дня народження в поточному/наступному році.
         """
         today = base_date or date.today()
-        start = today #+ timedelta(days=1) після тестування я вирішив залишити сьогоднішній день включеним
+        start = today  # + timedelta(days=1) після тестування я вирішив залишити сьогоднішній день включеним
         end = today + timedelta(days=7)
-        weekday_names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        weekday_names = [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]
         # wd -> list[str] (елементи формату "Name — DD.MM.YYYY (Weekday)")
         buckets: dict[int, list[str]] = {}
 
@@ -241,7 +259,9 @@ class AddressBook(UserDict):
         for wd in range(7):
             if wd in buckets:
                 # відсортуємо вallсередині дня по імені для стабільності
-                day_items = sorted(buckets[wd], key=lambda s: s.split(' — ', 1)[0].lower())
+                day_items = sorted(
+                    buckets[wd], key=lambda s: s.split(" — ", 1)[0].lower()
+                )
                 result.append(f"{weekday_names[wd]}:\n" + "\n".join(day_items))
         return result
 
